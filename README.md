@@ -1,6 +1,6 @@
 # Kahvi: portfolio & consulting site
 
-A single-page site that shows my current and past projects, my TabPFN research and the consulting services I offer. Built with Vite, React, TypeScript and Tailwind CSS v4, and deployed to Vercel as a static SPA.
+A single-page site that shows my current and past projects, my TabPFN research and the consulting services I offer. Built with Vite, React, TypeScript and Tailwind CSS v4, and deployed as a static SPA to Vercel or Cloudflare Workers.
 
 ## Run locally
 
@@ -35,6 +35,27 @@ The form posts to [Formspree](https://formspree.io) when `VITE_FORMSPREE_FORM_ID
 3. Deploy.
 
 [`vercel.json`](vercel.json) rewrites unknown paths to `index.html` so the SPA always loads, and serves the hashed files in `/assets` with a long-lived cache header.
+
+## Deploy to Cloudflare Workers
+
+The site also deploys as an assets-only Cloudflare Worker (no server code). [`wrangler.jsonc`](wrangler.jsonc) serves `dist/` and returns `index.html` for unknown paths; [`public/_headers`](public/_headers) adds the long-lived cache header for `/assets/*`.
+
+**From your machine**
+
+```bash
+npx wrangler login   # once, opens the browser
+npm run deploy       # builds, then uploads dist/ with wrangler deploy
+```
+
+The first deploy prints the URL, `https://kahvi-portfolio.<your-subdomain>.workers.dev`. To use the Formspree form, put `VITE_FORMSPREE_FORM_ID` in `.env.local` before deploying; it's baked in at build time. Run `npm run cf:dev` to preview locally in the Workers runtime.
+
+**From GitHub (deploys on every push)**
+
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Import a repository**, and pick `kahviprojects`.
+2. Build command `npm run build`, deploy command `npx wrangler deploy`, production branch `main`.
+3. Add `VITE_FORMSPREE_FORM_ID` under the **build** variables (a runtime variable won't reach the browser bundle).
+
+To use your own domain: Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain** (the domain's DNS must be on Cloudflare).
 
 ## Theme
 
